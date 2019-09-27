@@ -1,4 +1,4 @@
-require_relative 'send_sms'
+require 'twilio-ruby'
 
 class Takeaway
   attr_accessor :dishes
@@ -29,9 +29,18 @@ class Takeaway
   def checkout(payment)
     fail "Your payment does not cover the balance" if payment != @running_total
 
-    if payment === @running_total
-      @message
-    end
+    account_sid = 'AC0495cf6a55c4d6f7af1fe122a4f13ab4'
+    auth_token = '31ef06db871adf98e4ebf5382153b430'
+    client = Twilio::REST::Client.new(account_sid, auth_token)
+
+    from = '+441392690338' # Your Twilio number
+    to = '+447429188123' # Your mobile phone number
+    time = Time.new + 3600 # delivery time
+    @message = client.messages.create(
+    from: from,
+    to: to,
+    body: "Thank you! Your order was placed and will be delivered before #{time.strftime("%k:%M")}"
+    )
   end
 end
 
@@ -41,4 +50,4 @@ menu.select("Pizza", 4)
 menu.select("Lasagne", 1)
 puts menu.running_total
 puts menu.order
-puts menu.checkout(25)
+puts menu.checkout(30)
